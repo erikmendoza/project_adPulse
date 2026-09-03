@@ -15,7 +15,8 @@ RAW_PATH = PROJECT_ROOT / "data" / "raw" / "csv_weekly" / "email_campaigns.csv"
 
 shutil.copy(SOURCE_PATH, RAW_PATH)
 
-df = pd.read_csv(RAW_PATH)
+df_email = pd.read_csv(RAW_PATH)
 
-print(f"rows: {len(df)} columns: {len(df.columns)}")
-print(df.dtypes)
+print(f"rows: {len(df_email)} columns: {len(df_email.columns)}")
+
+print(df_email.dtypes)

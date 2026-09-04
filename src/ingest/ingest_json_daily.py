@@ -19,8 +19,10 @@ shutil.copy(SOURCE_PATH, RAW_PATH)
 with open(RAW_PATH) as f:
     data = json.load(f)
 
-print(f"rows: {len(data['data'])}")
+records = data["data"]
 
-df = pd.DataFrame(data["data"])
+print(f"rows: {len(records)}")
+
+df = pd.DataFrame(records)
 
 print(df.dtypes)

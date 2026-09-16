@@ -1,11 +1,11 @@
 import pandas as pd
 
-from src.utils.paths import get_project_root
+from src.utils.paths import get_data_dir, get_project_root
 
 PROJECT_ROOT = get_project_root()
 
 MAPPING_PATH = PROJECT_ROOT / "data" / "raw" / "csv_mapping" / "campaign_mapping.csv"
-GOLD_PATH = PROJECT_ROOT / "data" / "gold"
+GOLD_PATH = get_data_dir("gold")
 
 mapping = pd.read_csv(MAPPING_PATH)
 
@@ -36,7 +36,7 @@ print(mapping_long)
 # print(f"rows: {len(mapping_long)}")
 
 
-SILVER_PATH = PROJECT_ROOT / "data" / "silver"
+SILVER_PATH = get_data_dir("silver")
 
 google = pd.read_parquet(SILVER_PATH / "google_ads.parquet")
 

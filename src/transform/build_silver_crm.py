@@ -1,13 +1,11 @@
-from pathlib import Path
-
 import pandas as pd
 
-from src.utils.paths import get_project_root
+from src.utils.paths import get_data_dir, get_project_root
 
 PROJECT_ROOT = get_project_root()
 
 RAW_PATH = PROJECT_ROOT / "data" / "raw" / "csv_crm" / "crm_sales.csv"
-SILVER_PATH = PROJECT_ROOT / "data" / "silver"
+SILVER_PATH = get_data_dir("silver")
 
 df_crm = pd.read_csv(RAW_PATH)
 df_crm["sale_date"] = pd.to_datetime(df_crm["sale_date"], format="%Y-%m-%d")

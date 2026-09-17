@@ -10,6 +10,9 @@ SILVER_PATH = get_data_dir("silver")
 df = pd.read_csv(RAW_PATH)
 df["week_start"] = pd.to_datetime(df["week_start"], format="%Y-%m-%d")
 df["week_end"] = pd.to_datetime(df["week_end"], format="%Y-%m-%d")
+
+SILVER_PATH.mkdir(parents=True, exist_ok=True)
+
 df.to_parquet(SILVER_PATH / "email_campaigns.parquet")
 print(f"rows: {len(df)} columns: {len(df.columns)}")
 print(df.dtypes)

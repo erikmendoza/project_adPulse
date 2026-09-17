@@ -9,6 +9,9 @@ SILVER_PATH = get_data_dir("silver")
 
 df_crm = pd.read_csv(RAW_PATH)
 df_crm["sale_date"] = pd.to_datetime(df_crm["sale_date"], format="%Y-%m-%d")
+
+SILVER_PATH.mkdir(parents=True, exist_ok=True)
+
 print(df_crm.dtypes)
 print(df_crm.head(5))
 df_crm.to_parquet(SILVER_PATH / "crm_sales.parquet")

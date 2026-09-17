@@ -9,6 +9,8 @@ PROJECT_ROOT = get_project_root()
 RAW_PATH = get_data_dir("raw") / "json_daily" / "meta_ads.json"
 SILVER_PATH = get_data_dir("silver")
 
+SILVER_PATH.mkdir(parents=True, exist_ok=True)
+
 with open(RAW_PATH) as f:
     data = json.load(f)
 

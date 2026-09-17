@@ -167,6 +167,7 @@ print(f"duplicated: {duplicated.sum()}")
 
 assert duplicated.sum() == 0, "Duplicated rows found in unified_campaigns table"
 
+GOLD_PATH.mkdir(parents=True, exist_ok=True)
 unified.to_parquet(GOLD_PATH / "unified_campaigns.parquet")
 
 print(f"saved {len(unified)} rows to {GOLD_PATH / 'unified_campaigns.parquet'}")

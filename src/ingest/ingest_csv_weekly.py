@@ -1,8 +1,12 @@
 import shutil
+from pathlib import Path
 
 import pandas as pd
 
+from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir, get_project_root, get_source_dir
+
+logger = get_logger(Path(__file__).stem)
 
 PROJECT_ROOT = get_project_root()
 FILENAME = "email_campaigns.csv"
@@ -16,6 +20,5 @@ shutil.copy(SOURCE_PATH, RAW_PATH)
 
 df_email = pd.read_csv(RAW_PATH)
 
-print(f"rows: {len(df_email)} columns: {len(df_email.columns)}")
-
-print(df_email.dtypes)
+logger.info(f"rows: {len(df_email)} columns: {len(df_email.columns)}")
+logger.info(df_email.dtypes)

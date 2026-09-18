@@ -8,8 +8,8 @@ PROJECT_ROOT = get_project_root()
 FILENAME = "crm_sales.csv"
 SOURCE_DIR = get_source_dir()
 SOURCE_PATH = SOURCE_DIR / "crm_ventas.csv"
-RAW_PATH = get_data_dir("raw") / "csv_crm" / FILENAME
 RAW_DIR = get_data_dir("raw") / "csv_crm"
+RAW_PATH = RAW_DIR / FILENAME
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 shutil.copy(SOURCE_PATH, RAW_PATH)

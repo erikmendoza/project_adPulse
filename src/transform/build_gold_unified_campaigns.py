@@ -1,6 +1,11 @@
+from pathlib import Path
+
 import pandas as pd
 
+from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir, get_project_root
+
+logger = get_logger(Path(__file__).stem)
 
 PROJECT_ROOT = get_project_root()
 
@@ -29,9 +34,6 @@ def standardize_source(df, source, rename_map, defaults=None):
 
 
 mapping = pd.read_csv(MAPPING_PATH)
-
-# print(mapping.head(5))
-
 mapping = mapping.rename(
     columns={
         "google_name": "google",
@@ -40,8 +42,6 @@ mapping = mapping.rename(
     }
 )
 
-# print(mapping.head(5))
-
 mapping_long = mapping.melt(
     id_vars=["campaign_group", "product_category"],
     value_vars=["google", "meta", "email"],
@@ -49,13 +49,7 @@ mapping_long = mapping.melt(
     var_name="source",
 )
 
-# print(mapping_long)
-
 mapping_long = mapping_long.dropna(subset=["original_campaign_name"])
-
-print(mapping_long)
-# print(f"rows: {len(mapping_long)}")
-
 
 SILVER_PATH = get_data_dir("silver")
 
@@ -70,14 +64,9 @@ google = standardize_source(
     rename_map={"campaign_name": "original_campaign_name", "cost_eur": "spend_eur"},
     defaults={"revenue_eur": 0.0},
 )
-
-print(google.head(5))
+logger.info(f"Google rows: {len(google)}")
 
 meta = pd.read_parquet(SILVER_PATH / "meta_ads.parquet")
-
-# print(meta.head(5))
-# print(f"rows: {len(meta)}")
-
 meta = standardize_source(
     meta,
     source="meta",
@@ -90,12 +79,9 @@ meta = standardize_source(
     defaults={"revenue_eur": 0.0},
 )
 
-print(meta.head(5))
+logger.info(f"Meta rows: {len(meta)}")
 
 email = pd.read_parquet(SILVER_PATH / "email_campaigns.parquet")
-
-# print(email.head(5))
-# print(f"rows: {len(email)}")
 
 email = standardize_source(
     email,
@@ -110,12 +96,11 @@ email = standardize_source(
     defaults={"impressions": 0},
 )
 
-print(email.head(5))
+logger.info(f"Email rows: {len(email)}")
 
 facts = pd.concat([google, meta, email], ignore_index=True)
 
-print(facts)
-print(f"rows: {len(facts)}")
+logger.info(f"Fact rows: {len(facts)}")
 
 unified = facts.merge(
     mapping_long,
@@ -123,17 +108,11 @@ unified = facts.merge(
     how="left",
 )
 
-print(unified)
-print(f"rows: {len(unified)}")
+logger.info(f"Unified rows: {len(unified)}")
 
 unified["is_mapped"] = unified["campaign_group"].notna()
 
-# print(unified)
-# print(unified["is_mapped"].value_counts())
-
 unified["loaded_at"] = pd.Timestamp.now()
-
-# print(unified[["date", "source", "loaded_at"]].head())
 
 unified = unified[
     [
@@ -159,15 +138,14 @@ count_cols = [
 ]
 unified[count_cols] = unified[count_cols].astype("Int64")
 
-print(unified.head())
-print(unified.dtypes)
+logger.info(unified.dtypes)
 
 duplicated = unified.duplicated(subset=["date", "source", "original_campaign_name"])
-print(f"duplicated: {duplicated.sum()}")
+logger.info(f"Unified rows duplicated: {duplicated.sum()}")
 
 assert duplicated.sum() == 0, "Duplicated rows found in unified_campaigns table"
 
 GOLD_PATH.mkdir(parents=True, exist_ok=True)
 unified.to_parquet(GOLD_PATH / "unified_campaigns.parquet")
 
-print(f"saved {len(unified)} rows to {GOLD_PATH / 'unified_campaigns.parquet'}")
+logger.info(f"saved {len(unified)} rows to {GOLD_PATH / 'unified_campaigns.parquet'}")

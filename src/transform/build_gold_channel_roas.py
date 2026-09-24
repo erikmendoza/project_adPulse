@@ -117,5 +117,25 @@ channel_roas = pd.DataFrame(
 
 GOLD_PATH.mkdir(parents=True, exist_ok=True)
 channel_roas.to_parquet(GOLD_PATH / "channel_roas.parquet")
-
 logger.info(f"rows: {len(channel_roas)} columns: {len(channel_roas.columns)}")
+
+executive_summary = channel_roas.rename(
+    columns={"source": "channel", "roas": "roas_first_purchase"}
+).drop(columns=["reconciled_revenue", "reconciled_revenue_ltv"])
+
+total_row = pd.DataFrame(
+    [
+        {
+            "channel": "TOTAL",
+            "reported_conversions": conversions_by_source.sum(),
+            "reconciled_conversions": crm_total_records,
+            "spend_eur": crm_total_spend,
+            "roas_first_purchase": global_roas,
+            "roas_ltv": global_roas_ltv,
+        }
+    ]
+)
+executive_summary = pd.concat([executive_summary, total_row], ignore_index=True)
+
+executive_summary.to_parquet(GOLD_PATH / "executive_summary.parquet")
+logger.info(f"rows: {len(executive_summary)} columns: {len(executive_summary.columns)}")

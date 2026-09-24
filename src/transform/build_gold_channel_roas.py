@@ -128,7 +128,7 @@ total_row = pd.DataFrame(
         {
             "channel": "TOTAL",
             "reported_conversions": conversions_by_source.sum(),
-            "reconciled_conversions": crm_total_records,
+            "reconciled_conversions": crm_total_conversions,
             "spend_eur": crm_total_spend,
             "roas_first_purchase": global_roas,
             "roas_ltv": global_roas_ltv,

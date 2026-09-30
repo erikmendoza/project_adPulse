@@ -6,18 +6,25 @@ import pandas as pd
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir, get_source_dir
 
-logger = get_logger(Path(__file__).stem)
 
-FILENAME = "crm_sales.csv"
-SOURCE_DIR = get_source_dir()
-SOURCE_PATH = SOURCE_DIR / "crm_ventas.csv"
-RAW_DIR = get_data_dir("raw") / "csv_crm"
-RAW_PATH = RAW_DIR / FILENAME
-RAW_DIR.mkdir(parents=True, exist_ok=True)
+def run():
 
-shutil.copy(SOURCE_PATH, RAW_PATH)
+    logger = get_logger(Path(__file__).stem)
 
-df = pd.read_csv(RAW_PATH)
+    FILENAME = "crm_sales.csv"
+    SOURCE_DIR = get_source_dir()
+    SOURCE_PATH = SOURCE_DIR / "crm_ventas.csv"
+    RAW_DIR = get_data_dir("raw") / "csv_crm"
+    RAW_PATH = RAW_DIR / FILENAME
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-logger.info(f"rows: {len(df)} columns: {len(df.columns)}")
-logger.info(df.dtypes)
+    shutil.copy(SOURCE_PATH, RAW_PATH)
+
+    df = pd.read_csv(RAW_PATH)
+
+    logger.info(f"rows: {len(df)} columns: {len(df.columns)}")
+    logger.info(df.dtypes)
+
+
+if __name__ == "__main__":
+    run()

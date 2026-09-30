@@ -54,7 +54,7 @@ logger.info(
 )
 
 GOLD_PATH.mkdir(parents=True, exist_ok=True)
-source_roas.to_parquet(GOLD_PATH / "channel_roas.parquet")
+source_roas.to_parquet(GOLD_PATH / "proportional_reconciliation_roas.parquet")
 logger.info(
-    f"Saved {len(source_roas)} rows to {GOLD_PATH / 'linear_attribution_roas.parquet'}"
+    f"Saved {len(source_roas)} rows to {GOLD_PATH / 'proportional_reconciliation_roas.parquet'}"
 )

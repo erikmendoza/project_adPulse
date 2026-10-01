@@ -5,16 +5,22 @@ import pandas as pd
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
-logger = get_logger(Path(__file__).stem)
 
-RAW_PATH = get_data_dir("raw") / "csv_daily" / "google_ads_weekly.csv"
-SILVER_PATH = get_data_dir("silver")
+def run():
 
-df = pd.read_csv(RAW_PATH)
-df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+    logger = get_logger(Path(__file__).stem)
 
-SILVER_PATH.mkdir(parents=True, exist_ok=True)
-df.to_parquet(SILVER_PATH / "google_ads.parquet")
+    RAW_PATH = get_data_dir("raw") / "csv_daily" / "google_ads_weekly.csv"
+    SILVER_PATH = get_data_dir("silver")
 
-logger.info(f"rows: {len(df)} columns: {len(df.columns)}")
-logger.info(df.dtypes)
+    df = pd.read_csv(RAW_PATH)
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+
+    SILVER_PATH.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(SILVER_PATH / "google_ads.parquet")
+
+    logger.info(f"rows: {len(df)} columns: {len(df.columns)}")
+
+
+if __name__ == "__main__":
+    run()

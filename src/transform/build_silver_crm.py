@@ -5,16 +5,22 @@ import pandas as pd
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
-logger = get_logger(Path(__file__).stem)
 
-RAW_PATH = get_data_dir("raw") / "csv_crm" / "crm_sales.csv"
-SILVER_PATH = get_data_dir("silver")
+def run():
 
-df_crm = pd.read_csv(RAW_PATH)
-df_crm["sale_date"] = pd.to_datetime(df_crm["sale_date"], format="%Y-%m-%d")
+    logger = get_logger(Path(__file__).stem)
 
-SILVER_PATH.mkdir(parents=True, exist_ok=True)
-df_crm.to_parquet(SILVER_PATH / "crm_sales.parquet")
+    RAW_PATH = get_data_dir("raw") / "csv_crm" / "crm_sales.csv"
+    SILVER_PATH = get_data_dir("silver")
 
-logger.info(f"rows: {len(df_crm)} columns: {len(df_crm.columns)}")
-logger.info(df_crm.dtypes)
+    df_crm = pd.read_csv(RAW_PATH)
+    df_crm["sale_date"] = pd.to_datetime(df_crm["sale_date"], format="%Y-%m-%d")
+
+    SILVER_PATH.mkdir(parents=True, exist_ok=True)
+    df_crm.to_parquet(SILVER_PATH / "crm_sales.parquet")
+
+    logger.info(f"rows: {len(df_crm)} columns: {len(df_crm.columns)}")
+
+
+if __name__ == "__main__":
+    run()

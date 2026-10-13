@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.cleaning import strip_whitespace
+from src.utils.cleaning import drop_exact_duplicates, strip_whitespace
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
@@ -18,7 +18,9 @@ def run():
     df["week_start"] = pd.to_datetime(df["week_start"], format="%Y-%m-%d")
     df["week_end"] = pd.to_datetime(df["week_end"], format="%Y-%m-%d")
     df = strip_whitespace(df, ["campaign_name"])
-
+    df, removed = drop_exact_duplicates(df)
+    if removed > 0:
+        logger.info(f"Removed {removed} exact duplicate rows")
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
     df.to_parquet(SILVER_PATH / "email_campaigns.parquet")
 

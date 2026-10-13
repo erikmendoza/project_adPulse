@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.cleaning import strip_whitespace
+from src.utils.cleaning import drop_exact_duplicates, strip_whitespace
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
@@ -40,6 +40,9 @@ def run():
         ["impressions", "reach", "clicks", "spend"] + list(actions_df.columns) + list(cost_per_action_type_df.columns)
     )
     df_meta = strip_whitespace(df_meta, ["campaign_id", "campaign_name"])
+    df_meta, removed = drop_exact_duplicates(df_meta)
+    if removed > 0:
+        logger.info(f"Removed {removed} exact duplicate rows")
     df_meta[numeric_cols] = df_meta[numeric_cols].astype("float64")
 
     SILVER_PATH.mkdir(parents=True, exist_ok=True)

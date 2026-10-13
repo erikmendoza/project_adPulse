@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.utils.cleaning import strip_whitespace
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
@@ -29,19 +30,15 @@ def run():
         value_name="original_campaign_name",
         var_name="source",
     )
-    logger.info(
-        f"After melt: {len(mapping_long)} rows {len(mapping_long.columns)} columns"
-    )
+    logger.info(f"After melt: {len(mapping_long)} rows {len(mapping_long.columns)} columns")
 
     mapping_long = mapping_long.dropna(subset=["original_campaign_name"])
-    logger.info(
-        f"After dropping na: {len(mapping_long)} rows {len(mapping_long.columns)} columns"
+    logger.info(f"After dropping na: {len(mapping_long)} rows {len(mapping_long.columns)} columns")
+    mapping_long = strip_whitespace(
+        mapping_long, columns=["campaign_group", "product_category", "original_campaign_name"]
     )
-
     mapping_dupes = mapping_long.duplicated(subset=["source", "original_campaign_name"])
-    assert mapping_dupes.sum() == 0, (
-        "Duplicate (source, campaign) pairs in campaign mapping"
-    )
+    assert mapping_dupes.sum() == 0, "Duplicate (source, campaign) pairs in campaign mapping"
 
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
     mapping_long.to_parquet(SILVER_PATH / "campaign_mapping.parquet")

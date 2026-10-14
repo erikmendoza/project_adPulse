@@ -27,7 +27,7 @@ def run():
     if removed_start + removed_end > 0:
         logger.info(f"Removed {removed} rows with future week_start")
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(SILVER_PATH / "email_campaigns.parquet")
+    df.to_parquet(SILVER_PATH / "email_campaigns.parquet, index=False")
 
     logger.info(f"rows: {len(df)} columns: {len(df.columns)}")
 

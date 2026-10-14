@@ -53,7 +53,7 @@ def run():
     df_meta["cost_per_purchase"] = df_meta["cost_per_purchase"].fillna(df_meta["spend"] / df_meta["purchase"])
 
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
-    df_meta.to_parquet(SILVER_PATH / "meta_ads.parquet")
+    df_meta.to_parquet(SILVER_PATH / "meta_ads.parquet", index=False)
 
     logger.info(f"rows: {len(df_meta)} columns: {len(df_meta.columns)}")
 

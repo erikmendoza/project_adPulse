@@ -24,7 +24,7 @@ def run():
     if removed > 0:
         logger.info(f"Removed {removed} rows with future sale_date")
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
-    df_crm.to_parquet(SILVER_PATH / "crm_sales.parquet")
+    df_crm.to_parquet(SILVER_PATH / "crm_sales.parquet", index=False)
 
     logger.info(f"rows: {len(df_crm)} columns: {len(df_crm.columns)}")
 

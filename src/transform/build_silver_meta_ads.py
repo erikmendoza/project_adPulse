@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.cleaning import drop_exact_duplicates, strip_whitespace
+from src.utils.cleaning import drop_exact_duplicates, filter_future_dates, strip_whitespace
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
@@ -43,6 +43,11 @@ def run():
     df_meta, removed = drop_exact_duplicates(df_meta)
     if removed > 0:
         logger.info(f"Removed {removed} exact duplicate rows")
+
+    df_meta, removed_start = filter_future_dates(df_meta, "date_start")
+    df_meta, removed_stop = filter_future_dates(df_meta, "date_stop")
+    if removed_start + removed_stop > 0:
+        logger.info(f"Removed {removed_start + removed_stop} rows with future date")
     df_meta[numeric_cols] = df_meta[numeric_cols].astype("float64")
 
     df_meta["cost_per_purchase"] = df_meta["cost_per_purchase"].fillna(df_meta["spend"] / df_meta["purchase"])

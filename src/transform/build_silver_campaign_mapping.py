@@ -13,7 +13,15 @@ def run():
     RAW_PATH = get_data_dir("raw") / "csv_mapping" / "campaign_mapping.csv"
     SILVER_PATH = get_data_dir("silver")
 
-    mapping = pd.read_csv(RAW_PATH)
+    dtype = {
+        "campaign_group": "string",
+        "product_category": "string",
+        "google_name": "string",
+        "meta_name": "string",
+        "email_name": "string",
+    }
+
+    mapping = pd.read_csv(RAW_PATH, dtype=dtype)
     logger.info(f"Read {len(mapping)} rows {len(mapping.columns)} columns")
 
     mapping = mapping.rename(
@@ -34,12 +42,15 @@ def run():
 
     mapping_long = mapping_long.dropna(subset=["original_campaign_name"])
     logger.info(f"After dropping na: {len(mapping_long)} rows {len(mapping_long.columns)} columns")
+
     mapping_long = strip_whitespace(
         mapping_long, columns=["campaign_group", "product_category", "original_campaign_name"]
     )
+
     mapping_long, removed = drop_exact_duplicates(mapping_long)
     if removed > 0:
         logger.info(f"Removed {removed} exact duplicate rows")
+
     mapping_dupes = mapping_long.duplicated(subset=["source", "original_campaign_name"])
     assert mapping_dupes.sum() == 0, "Duplicate (source, campaign) pairs in campaign mapping"
 

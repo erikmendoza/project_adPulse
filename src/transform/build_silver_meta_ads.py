@@ -3,7 +3,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.utils.cleaning import drop_exact_duplicates, filter_future_dates, strip_whitespace
+from src.utils.cleaning import (
+    coerce_datetime,
+    coerce_numeric,
+    drop_exact_duplicates,
+    filter_future_dates,
+    strip_whitespace,
+)
 from src.utils.logging_config import get_logger
 from src.utils.paths import get_data_dir
 
@@ -22,8 +28,16 @@ def run():
 
     base_df = pd.json_normalize(records).drop(columns=["actions", "cost_per_action_type"])
 
-    base_df["date_start"] = pd.to_datetime(base_df["date_start"], format="%Y-%m-%d")
-    base_df["date_stop"] = pd.to_datetime(base_df["date_stop"], format="%Y-%m-%d")
+    base_df["campaign_id"] = base_df["campaign_id"].astype("string")
+    base_df["campaign_name"] = base_df["campaign_name"].astype("string")
+
+    base_df, invalid = coerce_datetime(base_df, "date_start", format="%Y-%m-%d")
+    if invalid > 0:
+        logger.warning(f"{invalid} invalid values in date_start converted to null")
+
+    base_df, invalid = coerce_datetime(base_df, "date_stop", format="%Y-%m-%d")
+    if invalid > 0:
+        logger.warning(f"{invalid} invalid values in date_stop converted to null")
 
     actions_list = [{a["action_type"]: a["value"] for a in record.get("actions", [])} for record in records]
     actions_df = pd.DataFrame(actions_list)
@@ -36,9 +50,25 @@ def run():
 
     df_meta = pd.concat([base_df, actions_df, cost_per_action_type_df], axis=1)
 
-    numeric_cols = (
-        ["impressions", "reach", "clicks", "spend"] + list(actions_df.columns) + list(cost_per_action_type_df.columns)
-    )
+    print(df_meta.dtypes)
+
+    numeric_cols = ["impressions", "reach", "clicks", "purchase", "add_to_cart", "view_content", "initiate_checkout"]
+    decimal_cols = ["spend", "cost_per_purchase"]
+
+    for col in numeric_cols:
+        df_meta, invalid = coerce_numeric(df_meta, col, dtype="Int64")
+        if invalid > 0:
+            logger.warning(f"{invalid} invalid values in {col} converted to null")
+
+    for col in decimal_cols:
+        df_meta, invalid = coerce_numeric(df_meta, col, dtype="float64")
+        if invalid > 0:
+            logger.warning(f"{invalid} invalid values in {col} converted to null")
+
+    df_meta["cost_per_purchase"] = df_meta["cost_per_purchase"].fillna(df_meta["spend"] / df_meta["purchase"])
+
+    print(df_meta.dtypes)
+
     df_meta = strip_whitespace(df_meta, ["campaign_id", "campaign_name"])
     df_meta, removed = drop_exact_duplicates(df_meta)
     if removed > 0:
@@ -48,9 +78,6 @@ def run():
     df_meta, removed_stop = filter_future_dates(df_meta, "date_stop")
     if removed_start + removed_stop > 0:
         logger.info(f"Removed {removed_start + removed_stop} rows with future date")
-    df_meta[numeric_cols] = df_meta[numeric_cols].astype("float64")
-
-    df_meta["cost_per_purchase"] = df_meta["cost_per_purchase"].fillna(df_meta["spend"] / df_meta["purchase"])
 
     SILVER_PATH.mkdir(parents=True, exist_ok=True)
     df_meta.to_parquet(SILVER_PATH / "meta_ads.parquet", index=False)
